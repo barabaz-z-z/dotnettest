@@ -3,15 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Salestech.Exam.OOP;
 
 namespace TG.Exam.OOP
 {
 
-    public class Employee
+    public class Employee : IOutputable
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int Salary { get; set; }
+
+        public string ToString2()
+        {
+            return $"{FirstName} {LastName}";
+        }
     }
 
     public class SalesManager : Employee
@@ -25,9 +31,14 @@ namespace TG.Exam.OOP
         public int Customers { get; set; }
     }
 
-    public class Dog
+    public class Dog : IOutputable
     {
         public string Name { get; set; }
         public int Age { get; set; }
+
+        public string ToString2()
+        {
+            return $"{Name} {Age}";
+        }
     }
 }
