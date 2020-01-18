@@ -53,7 +53,10 @@ namespace TG.Exam.SQL
 
         public DataTable GetAllOrders()
         {
-            var sql = "select * from orders";
+            var sql = @"
+SELECT OrderId, OrderCustomerId, OrderDate 
+FROM Orders
+";
 
             var ds = GetData(sql);
 
@@ -64,8 +67,14 @@ namespace TG.Exam.SQL
         public DataTable GetAllOrdersWithCustomers()
         {
             var sql = @"
-select o.OrderId, o.OrderDate, c.CustomerId, c.CustomerFirstName, c.CustomerLastName from orders as o
-join customers as c on c.CustomerId = o.OrderCustomerId
+SELECT o.OrderId, 
+       o.OrderDate, 
+       c.CustomerId, 
+       c.CustomerFirstName, 
+       c.CustomerLastName 
+FROM   Orders AS o 
+       JOIN Customers AS c 
+         ON c.Customerid = o.Ordercustomerid 
 ";
 
             var ds = GetData(sql);
@@ -78,12 +87,17 @@ join customers as c on c.CustomerId = o.OrderCustomerId
         public DataTable GetAllOrdersWithPriceUnder(int price)
         {
             var sql = $@"
-select o.*, r.CommonPrice from orders as o
-right join  
-	(select oi.OrderId, sum(oi.Count * i.ItemPrice) as CommonPrice from ordersitems as oi
-	join items as i on oi.itemid = i.itemid
-	group by oi.OrderId
-	having sum(oi.Count * i.ItemPrice) <= {price}) as r on r.orderid = o.orderid
+SELECT o.*, 
+       r.CommonPrice 
+FROM   Orders AS o 
+       RIGHT JOIN (SELECT oi.OrderId, 
+                          Sum(oi.Count * i.ItemPrice) AS CommonPrice 
+                   FROM   OrdersItems AS oi 
+                          JOIN Items AS i 
+                            ON oi.ItemId = i.ItemId 
+                   GROUP  BY oi.OrderId 
+                   HAVING Sum(oi.Count * i.ItemPrice) <= {price}) AS r 
+               ON r.OrderId = o.OrderId 
 ";
             var ds = GetData(sql);
 
@@ -99,23 +113,27 @@ right join
             // 3. remove all orders
             // 4. remove customer
             var sql = $@"
-declare @CustomerId int
-select @CustomerId = c.customerid from customers c
-inner join orders o 
-on o.ordercustomerid = c.customerid
-where o.orderid = {orderId}
+DECLARE @CustomerId INT 
 
-delete oi
-from orders o
-left join ordersitems oi 
-on oi.orderid = o.orderid
-where o.ordercustomerid = @CustomerId
+SELECT @CustomerId = c.CustomerId 
+FROM   Customers c 
+       INNER JOIN Orders o 
+               ON o.OrderCustomerId = c.CustomerId 
+WHERE  o.OrderId = {orderId} 
 
-delete o from orders o
-where o.ordercustomerid = @CustomerId
+DELETE oi 
+FROM   Orders o 
+       LEFT JOIN OrdersItems oi 
+              ON oi.OrderId = o.OrderId 
+WHERE  o.OrderCustomerId = @CustomerId 
 
-delete c from customers c
-where c.customerid = @CustomerId
+DELETE o 
+FROM   Orders o 
+WHERE  o.OrderCustomerId = @CustomerId 
+
+DELETE c 
+FROM   Customers c 
+WHERE  c.CustomerId = @CustomerId 
 ";
 
             Execute(sql);
@@ -124,10 +142,14 @@ where c.customerid = @CustomerId
         internal DataTable GetAllItemsAndTheirOrdersCountIncludingTheItemsWithoutOrders()
         {
             var sql = @"
-select i.itemid, i.itemname, count(oi.Count) Count from items i
-left join ordersitems oi
-on i.itemid = oi.itemid
-group by i.itemid, i.itemname
+SELECT i.ItemId, 
+       i.ItemName, 
+       Count(oi.Count) Count 
+FROM   Items i 
+       LEFT JOIN OrdersItems oi 
+              ON i.ItemId = oi.ItemId 
+GROUP  BY i.ItemId, 
+          i.ItemName 
 ";
 
             var ds = GetData(sql);
