@@ -17,7 +17,8 @@ namespace TG.Exam.Refactoring
 
         // it is better to use ConcurrentDictionary because it is intended for threadsafe manipulation
         // made it private, if it is public, so name should start with capital letter and it should be property instead of field
-        private ConcurrentDictionary<string, Order> cache = new ConcurrentDictionary<string, Order>();
+        // made it static to be real cache
+        private static ConcurrentDictionary<string, Order> cache = new ConcurrentDictionary<string, Order>();
 
         public OrderService()
         {
