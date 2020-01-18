@@ -1,0 +1,80 @@
+﻿@model IEnumerable<TG.Exam.WebMVC.Models.User>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+		integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+		crossorigin="anonymous"></script>
+@section scripts{
+	<script>
+		$(function () {
+			$('#load').on('click', function () {
+				$.ajax('/api/users',
+					{
+						dataType: 'json',
+						success: (data, status, xhr) => {
+							$('#ajax-container').removeAttr('style');
+
+							data.forEach(i => {
+								$('#example')
+									.append(`<tr><td>${i.FirstName}</td><td>${i.LastName}</td><td>${i.Age}</td></tr>`);
+							});
+						}
+					});
+			});
+		});
+	</script>
+}
+
+<h2>Users</h2>
+
+<p><button class="btn btn-primary" id="load">Fetch ASYNC</button></p>
+<div id="ajax-container" style="display: none">
+	<h2>Users by ajax request</h2>
+	<table class="table" id="example">
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.FirstName)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.LastName)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Age)
+			</th>
+			<th></th>
+		</tr>
+	</table>
+</div>
+
+<table class="table">
+	<tr>
+		<th>
+			@Html.DisplayNameFor(model => model.FirstName)
+		</th>
+		<th>
+			@Html.DisplayNameFor(model => model.LastName)
+		</th>
+		<th>
+			@Html.DisplayNameFor(model => model.Age)
+		</th>
+		<th></th>
+	</tr>
+
+	@foreach (var user in Model)
+	{
+		<tr>
+			<td>
+				@Html.DisplayFor(modelItem => user.FirstName)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => user.LastName)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => user.Age)
+			</td>
+			<td>
+				@Html.ActionLink("Fetch SYNC", "Fetch", user)
+			</td>
+		</tr>
+	}
+
+</table>
